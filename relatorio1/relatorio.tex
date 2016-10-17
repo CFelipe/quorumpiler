@@ -1,0 +1,205 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[brazilian]{babel} % Hifenização e dicionário
+\usepackage[left=3.00cm, right=2.00cm, top=3.00cm, bottom=2.00cm]{geometry}
+\usepackage{enumitem} % Para itemsep etc
+\usepackage{longtable} % Dependência do longtabu
+\usepackage{tabu} % Para melhor criação de tabelas
+\usepackage{listings} % Para códigos
+\usepackage{lstautogobble} % Códigos indentados corretamente
+\usepackage{color} % Para coloração de códigos
+\usepackage{zi4} % Para fonte de códigos
+\usepackage{parskip} % Linha em branco entre parágrafos em vez de recuo
+\usepackage{graphicx}
+\usepackage{verbatim} % Para comentários
+\usepackage[breaklinks]{hyperref}
+
+\tabulinesep=0.75ex % Espaçamento interno das tabelas
+
+\definecolor{bluekeywords}{rgb}{0.13, 0.13, 1}
+\definecolor{greencomments}{rgb}{0, 0.5, 0}
+\definecolor{redstrings}{rgb}{0.9, 0, 0}
+\definecolor{graynumbers}{rgb}{0.5, 0.5, 0.5}
+\definecolor{graybox}{rgb}{0.9, 0.9, 0.9}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+}
+
+\newcommand{\ic}[1]{\textbf{\lstinline{#1}}}
+
+\usepackage{listings}
+\lstset{
+    autogobble,
+    columns=fullflexible,
+    showspaces=false,
+    keepspaces=true,
+    showtabs=true,
+    breaklines=true,
+    showstringspaces=false,
+    breakatwhitespace=true,
+    escapeinside={(*@}{@*)},
+    commentstyle=\color{greencomments},
+    keywordstyle=\color{bluekeywords},
+    stringstyle=\color{redstrings},
+    numberstyle=\color{graynumbers},
+    basicstyle=\ttfamily\footnotesize,
+    frame=l,
+    framesep=12pt,
+    xleftmargin=12pt,
+    tabsize=4,
+    captionpos=b,
+}
+
+\begin{document}
+\begin{center}
+    \textsc{Universidade Federal do Rio Grande do Norte} \\
+    \textsc{Departamento de Informática e Matemática Aplicada}
+\end{center}
+
+\bigskip
+
+\begin{tabular}{@{}ll@{}}
+    \emph{Disciplina:} & DIM0611 --- Compiladores \\
+    \emph{Docente:}    & Martin Alejandro Musicante \\
+    \emph{Discente:}   & Felipe Cortez de Sá \\
+\end{tabular}
+
+\bigskip
+
+\begin{center}
+\large \textbf{Relatório} --- Analisador léxico
+\end{center}
+
+\section{A linguagem}
+\subsection{Tipos}
+\subsubsection{\ic{integer}}
+Um número positivo, negativo ou zero, ou seja, inteiro. Decidiu-se tratar o
+operador unário \ic{-} como token separado do número. Assim, a
+expressão regular para um inteiro é simplesmente \ic{[0-9]+}.
+
+\subsubsection{\ic{number}}
+Um número em ponto flutuante. Não há suporte a notação científica. Dessa forma,
+a expressão regular associada ao token é \ic{[0-9]+"."[0-9]*}
+
+\subsubsection{\ic{boolean}}
+Pode assumir apenas os valores \ic{true} ou \ic{false}. Logo, para o token
+booleano, temos a expressão regular \ic{\"true\"|\"false\"}
+
+\subsubsection{\ic{text}}
+Uma string. Como é não-trivial tratar as quebras de linha e o que deve vir
+dentro das aspas, foi retirada
+\href{http://www.lysator.liu.se/c/ANSI-C-grammar-l.html}{deste site} uma
+expressão regular para tokens de strings. A expressão regular extraída e
+adaptada é \ic{\\\"(\\\\.|[\^\\\\\"])*\\\"}
+
+Para a \emph{BNF}, temos então os tipos \ic{type ::= \"integer\" | \"number\" | \"boolean\" | \"text\"}
+
+\subsubsection{Conversão entre tipos}
+A conversão entre tipos se dá através da função \ic{cast(tipo, identificador)}.
+
+\subsubsection{Identificadores}
+Devem começar com uma letra seguida por zero ou mais combinações entre números, letras
+ou underscores. Temos, então, a expressão regular
+\ic{([a-zA-Z])([a-zA-Z]|[0-9]|"_")*}
+
+\subsubsection{Declaração e atribuição}
+A declaração possui a forma \ic{tipo identificador = valor}. A atribuição
+inicial é obrigatória, portanto a BNF associada à declaração é \ic{type ID
+\"=\" expr}. A atribuição possui a forma \ic{identificador = valor},
+portanto a BNF associada é \ic{ID \"=\" expr}
+
+\subsection{Operadores}
+\subsubsection{\ic{+}}
+Soma números e concatena strings. Funciona apenas como operador binário, não
+sendo possível escrever \ic{+5 - 3}, por exemplo.
+
+\subsubsection{\ic{-}}
+Subtrai números e funciona também como operador unário, sendo possível escrever
+\ic{-5 - 3}.
+
+\subsubsection{\ic{*}, \ic{/}}
+Multiplicação e divisão entre \ic{integers} e \ic{numbers}.
+
+\subsubsection{\ic{mod}}
+Retorna o resto de uma operação de divisão. Funciona também para o tipo
+\ic{number}, não se restringindo aos inteiros.
+
+\subsubsection{\ic{>}, \ic{<}, \ic{>=}, \ic{<=}, \ic{==} e \ic{not=}}
+Operadores relacionais
+
+\subsection{Comentários}
+Os comentários são definidos semelhantemente a \emph{C++} e \emph{Java}, ou
+seja, \ic{//} é usado para comentários de linha e \ic{/* */} é usado para
+comentários multilinha. Visto que identificar comentários pelo analisador
+léxico é não-trivial, foram utilizadas as expressões regulares
+\href{http://stackoverflow.com/a/25396611}{deste site}: \ic{\"//\".*} para
+comentários de linha e \ic{[/][*][^*]*[*]+([^*/][^*]*[*]+)*[/]} para
+comentários multilinha. Adicionalmente, a detecção de comentários não
+terminados é feita através da expressão \ic{[/][*]}.
+
+\subsection{Estruturas de controle}
+\subsubsection{if}
+Executa um bloco de instruções caso a expressão especificada após a palavra
+\emph{if} seja avaliada como verdadeira. A BNF associada é \ic{\"if\" expr
+\{stmt\} \{\"elseif\" expr \{stmt\}\} [\"else\" expr \{stmt\}] \"end\"}
+
+\subsubsection{repeat \emph{n} times}
+Repete um bloco de instruções \emph{n} vezes, sendo \emph{n} qualquer número,
+inclusive negativo ou zero (que nada executam)
+\subsubsection{repeat while}
+Repete um bloco de instruções enquanto uma determinada condição especificada
+depois da palavra \ic{while} for avaliada como verdadeira.
+\subsubsection{repeat until}
+Repete um bloco de instruções enquanto uma determinada condição especificada
+depois da palavra \ic{while} for avaliada como falsa.
+
+Desta forma, a BNF para as estruturas de repetição é \ic{\"repeat\" ((\"while\"
+| \"until\") expr | NUMBER times) \"end\"}
+
+\subsection{Actions}
+Um bloco de instruções que, após ser definido, pode ser chamado em qualquer
+parte do programa. % definição ruim?
+Recebe zero ou mais parâmetros e opcionalmente retorna um valor de um tipo
+especificado na definição da ação. Temos a BNF \ic{\"action\" ID [\"(\" args_def
+\")\"] [\"returns\" type] {stmt} \"end\"}
+
+\subsection{Classes}
+De acordo com a documentação, uma classe representa uma coleção de dados e
+ações sobre esses dados. Para definir uma nova classe, utiliza-se \ic{class
+identificador end}. Apenas declarações de variáveis, atribuições e ações podem
+aparecer dentro desse bloco.
+
+\subsubsection{Herança}
+Opcionalmente, uma classe pode herdar atributos e ações de outras classes. Isso
+é feito escrevendo \ic{class identificador is identificadores}, em que
+\ic{identificadores} pode conter uma ou mais classes separadas por vírgula.
+
+Assim, a BNF para declaração de classes é \ic{\"class\" ID [\"is\" ID \{\",\"
+ID\}] \{declaration | action\} \"end\"}
+
+\subsection{Classes genéricas}
+São definidas como uma classe comum, porém utilizando a forma \ic{class
+Identificador<Type>} e instanciadas especificando o tipo desejado:
+\ic{Identificador_da_classe<tipo> identificador}
+
+\subsection{Autoboxing}
+\emph{Autoboxing} é o nome dado à conversão automática de tipos primitivos
+realizada ao utilizar classes genéricas.
+
+\subsection{Tratamento de erros}
+Para blocos \ic{try-catch-finally} comumente encontrados em outras linguagens,
+são utilizadas as palavras \ic{check-detect-always}.
+
+\subsection{Estrutura de um programa}
+É necessário colocar chamadas de ações dentro de um ação especial \ic{Main},
+opcionalmente localizada dentro de uma classe \ic{Main}. Fora da classe
+principal, é possível declarar variáveis, realizar atribuições, definir
+estruturas de controle e classes e realizar detecção de erros.
+
+\subsection{BNF completa}
+\begin{lstinputlisting}{../quorum.bnf}
+\end{lstinputlisting}
+
+\end{document}

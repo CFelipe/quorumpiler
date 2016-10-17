@@ -1,0 +1,10 @@
+integer a = 1
+integer c = 0
+if a = 1
+	c = 1
+elseif a > 1
+	c = 2
+else
+	c = 0
+end
+output c

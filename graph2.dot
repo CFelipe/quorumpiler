@@ -1,0 +1,106 @@
+digraph BST {
+node [fontname="Heuristica Regular", shape="box", height=0.25];
+1 [label="EXPR"]
+1 -> 2
+2 [label="DECLARATION"]
+2 -> 6
+2 -> 5
+2 -> 4
+2 -> 3
+3 [label="EXPR"]
+4 [label="="]
+5 [label="id"]
+6 [label="TYPE"]
+6 -> 7
+7 [label="integer"]
+7 [label="integer"]
+5 [label="id"]
+4 [label="="]
+3 -> 8
+8 [label="E1"]
+8 -> 10
+8 -> 9
+9 [label="E1'"]
+10 [label="E2"]
+10 -> 12
+10 -> 11
+11 [label="E2'"]
+12 [label="E3"]
+12 -> 14
+12 -> 13
+13 [label="E3'"]
+14 [label="E4"]
+14 -> 16
+14 -> 15
+15 [label="E4'"]
+16 [label="E5"]
+16 -> 18
+16 -> 17
+17 [label="E5'"]
+18 [label="E6"]
+18 -> 20
+18 -> 19
+19 [label="E6'"]
+20 [label="E7"]
+20 -> 21
+21 [label="number"]
+21 [label="number"]
+19 -> 24
+19 -> 23
+19 -> 22
+22 [label="E6'"]
+23 [label="E7"]
+24 [label="*"]
+24 [label="*"]
+23 -> 25
+25 [label="E8"]
+25 -> 28
+25 -> 27
+25 -> 26
+26 [label=")"]
+27 [label="E1"]
+28 [label="("]
+28 [label="("]
+27 -> 30
+27 -> 29
+29 [label="E1'"]
+30 [label="E2"]
+30 -> 32
+30 -> 31
+31 [label="E2'"]
+32 [label="E3"]
+32 -> 34
+32 -> 33
+33 [label="E3'"]
+34 [label="E4"]
+34 -> 36
+34 -> 35
+35 [label="E4'"]
+36 [label="E5"]
+36 -> 38
+36 -> 37
+37 [label="E5'"]
+38 [label="E6"]
+38 -> 40
+38 -> 39
+39 [label="E6'"]
+40 [label="E7"]
+40 -> 41
+41 [label="id"]
+41 [label="id"]
+37 -> 44
+37 -> 43
+37 -> 42
+42 [label="E5'"]
+43 [label="E6"]
+44 [label="+"]
+44 [label="+"]
+43 -> 46
+43 -> 45
+45 [label="E6'"]
+46 [label="E7"]
+46 -> 47
+47 [label="id"]
+47 [label="id"]
+26 [label=")"]
+}

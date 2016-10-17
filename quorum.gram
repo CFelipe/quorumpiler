@@ -1,0 +1,85 @@
+COMMA
+COLON
+LPAREN
+RPAREN
+EQ
+NOTEQ
+SUM
+MINUS
+TIMES
+DIV
+GR
+LE
+GREQ
+LEEQ
+DOT
+BOOLEAN_TYPE, INTEGER_TYPE, NUMBER_TYPE, TEXT_TYPE
+REPEAT, WHILE, UNTIL, TIMES, IF, CLASS, ELSE, ACTION, RETURNS
+USE, CHECK, DETECT, CAST, END,
+TRUE, FALSE, OUTPUT
+NUMBER, INTEGER, ID, TEXT
+ERROR
+
+TYPE        -> integer_type | number_type | boolean_type | text_type
+
+UN_OP       -> minus | not
+BIN_OP      -> sum | minus | times | div | gr | le | greq | leeq | eq | noteq
+CAST_EXPR   -> cast lparen TYPE comma id rparen
+
+EXPR        -> EXPR_TERM EXPR'
+EXPR_TERM   -> UN_OP EXPR | false | true | number | name | CAST_EXPR
+EXPR'       -> BIN_OP EXPR EXPR'
+EXPR'       -> ''
+
+LIB         -> id LIB'
+LIB'        -> dot id LIB'
+LIB'        ->
+
+ARGS        -> id ARGS'
+ARGS        -> ''
+ARGS'       -> comma id ARGS'
+ARGS'       -> ''
+
+ARGS_DEF    -> TYPE id ARGS_DEF'
+ARGS_DEF'   -> comma TYPE id ARGS_DEF'
+ARGS_DEF'   -> ''
+
+DECLARATION -> TYPE id eq EXPR
+
+ACTION      -> action id ACTION_ARGS ACTION_RET STMTS end
+ACTION_ARGS -> lparen ARGS_DEF rparen
+ACTION_ARGS -> ''
+ACTION_RET  -> returns TYPE
+ACTION_RET  -> ''
+
+ACTION_CALL -> INSTANCE lparen ARGS rparen
+INSTANCE    -> id INSTANCE'
+INSTANCE'   -> colon id
+INSTANCE'   -> ''
+
+declarações e declarações de ações podem ser várias
+CLASS_DECL  -> class id INHERITANCE DECLARATION ACTION end
+INHERITANCE -> is ARGS
+INHERITANCE -> ''
+
+ASSIGN      -> id eq EXPR
+
+REPEAT      -> repeat REPEAT' STMTS end
+REPEAT'     -> while EXPR | until EXPR
+
+IF_STMT     -> if EXPR STMTS ELSEIF_STMT ELSE_STMT end
+ELSEIF_STMT -> elseif EXPR STMTS ELSEIF_STMT
+ELSEIF_STMT -> ''
+ELSE_STMT   -> else EXPR STMTS
+ELSE_STMT   -> ''
+
+USE_STMT    -> use LIB
+CHECK_STMT  -> check STMTS end
+DETECT_STMT -> detect ID IS ID STMTS end
+ALWAYS      -> always STMTS end
+
+STMT        -> ASSIGN | REPEAT | IF_STMT | CLASS_DECL | USE_STMT |
+               CHECK_STMT | DETECT_STMT | ALWAYS_STMT | DECLARATION |
+               ACTION_CALL | ACTION_DECL
+STMTS       -> STMT STMTS
+STMTS       -> ''

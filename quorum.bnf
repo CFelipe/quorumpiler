@@ -1,0 +1,28 @@
+type            ::= "integer" | "number" | "boolean" | "text"
+
+un_op           ::= "-" | "not"
+bin_op          ::= "+" | "-" | "*" | "/" | ">" | "<" | ">=" | "<=" | "=" | "not="
+cast_expr       ::= "cast" "(" type_expr "," ID ")"
+expr            ::= expr bin_op expr | un_op expr | "false" | "true"
+                    | NUMBER | NAME | cast_expr
+
+lib             ::= ID {"." ID}
+args            ::= ID {"," ID}
+args_def        ::= type ID {"," type ID}
+declaration     ::= type ID "=" expr
+action_decl     ::= "action" ID ["(" args_def ")"] ["returns" type] {stmt} "end"
+action_call     ::= [ID ":"] ID "(" args ")"
+class_decl      ::= "class" ID ["is" ID {"," ID}] {declaration | action} "end"
+
+assign_stmt     ::= ID "=" expr
+repeat_stmt     ::= "repeat" (("while" | "until") expr | NUMBER times) "end"
+if_stmt         ::= "if" expr {stmt} {"elseif" expr {stmt}} ["else" expr {stmt}] "end"
+use_stmt        ::= "use" lib
+check_stmt      ::= "check" {stmt} "end"
+detect_stmt     ::= "detect" ID "is" ID {stmt} "end"
+always_stmt     ::= "always" {stmt} "end"
+
+stmt            ::= assign_stmt | repeat_stmt | if_stmt | class_decl | use_stmt 
+                    | check_stmt | detect_stmt | always_stmt | declaration
+
+program         ::= {stmt}

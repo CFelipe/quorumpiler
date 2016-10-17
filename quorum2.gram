@@ -1,0 +1,114 @@
+STMT        -> REPEAT_STMT
+STMT        -> IF_STMT
+STMT        -> CLASS_DECL
+STMT        -> USE_STMT
+STMT        -> CHECK_STMT
+STMT        -> DETECT_STMT
+STMT        -> ALWAYS_STMT
+STMT        -> DECLARATION
+STMT        -> ACTION_DECL
+STMT        -> ID_STMT
+
+STMTS       -> STMT STMTS
+STMTS       -> EPSILON
+
+TYPE        -> integer_type
+TYPE        -> number_type
+TYPE        -> boolean_type
+TYPE        -> text_type
+
+CAST_EXPR   -> cast lparen TYPE comma id rparen
+
+EXPR        -> E1
+
+E1          -> E2 E1'
+E1'         -> or E2 E1'
+E1'         -> EPSILON
+
+E2          -> E3 E2'
+E2'         -> and E3 E2'
+E2'         -> EPSILON
+
+E3          -> E4 E3'
+E3'         -> noteq E4 E3'
+E3'         -> eq E4 E3'
+E3'         -> EPSILON
+
+E4          -> E5 E4'
+E4'         -> gr E5
+E4'         -> le E5
+E4'         -> greq E5
+E4'         -> leeq E5
+E4'         -> EPSILON
+
+E5          -> E6 E5'
+E5'         -> sum E6 E5'
+E5'         -> minus E6 E5'
+E5'         -> EPSILON
+
+E6          -> E7 E6'
+E6'         -> times E7 E6'
+E6'         -> div E7 E6'
+E6'         -> EPSILON
+
+E7          -> CAST_EXPR
+E7          -> false
+E7          -> true
+E7          -> number
+E7          -> integer
+E7          -> id
+E7          -> E8
+
+E8          -> lparen E1 rparen
+
+LIB         -> id LIB'
+LIB'        -> dot id LIB'
+LIB'        -> EPSILON
+
+ARGS        -> id ARGS'
+ARGS        -> EPSILON
+ARGS'       -> comma id ARGS'
+ARGS'       -> EPSILON
+
+ARGS_DEF    -> TYPE id ARGS_DEF'
+ARGS_DEF'   -> comma TYPE id ARGS_DEF'
+ARGS_DEF'   -> EPSILON
+
+DECLARATION -> TYPE id eq EXPR
+
+ACTION_DECL -> action id ACTION_ARGS ACTION_RET STMTS end
+ACTION_ARGS -> lparen ARGS_DEF rparen
+ACTION_ARGS -> EPSILON
+ACTION_RET  -> returns TYPE
+ACTION_RET  -> EPSILON
+
+INSTANCE    -> colon id INSTANCE
+INSTANCE    -> EPSILON
+ACTION_CALL -> lparen ARGS rparen
+
+CLASS_DECL  -> class id INHERITANCE DECLARATION ACTION_DECL end
+INHERITANCE -> is ARGS
+INHERITANCE -> EPSILON
+
+ASSIGN      -> eq EXPR
+
+ID_STMT     -> id ID_STMT'
+ID_STMT'    -> INSTANCE ACTION_CALL
+ID_STMT'    -> ASSIGN
+
+REPEAT_STMT      -> repeat REPEAT_STMT' STMTS end
+REPEAT_STMT'     -> while EXPR
+REPEAT_STMT'     -> until EXPR
+
+IF_STMT     -> if EXPR STMTS ELSEIF_STMT
+
+ELSEIF_STMT -> elseif EXPR STMTS ELSEIF_STMT
+ELSEIF_STMT -> ELSE_STMT
+
+ELSE_STMT   -> else STMTS end
+ELSE_STMT   -> end
+
+USE_STMT    -> use LIB
+CHECK_STMT  -> check STMTS end
+DETECT_STMT -> detect id is id STMTS end
+ALWAYS_STMT -> always STMTS end

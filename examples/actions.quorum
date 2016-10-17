@@ -1,0 +1,8 @@
+action Main
+	integer addedNumbers = add(5,10)
+	output addedNumbers
+end
+
+action add(integer a, integer b) returns integer
+	return a + b
+end

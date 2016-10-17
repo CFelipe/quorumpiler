@@ -1,0 +1,9 @@
+class Main
+   action Main
+       i = 1
+       repeat 10 times
+           output i
+           i = i + 1
+       end
+   end
+end
