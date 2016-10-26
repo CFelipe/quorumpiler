@@ -8,6 +8,7 @@
 
 %{
 #include <stdio.h>
+#include "y.tab.h"
 %}
 
 %%
@@ -22,10 +23,10 @@
 ")"         return RPAREN;
 "="         return EQ;
 "not="      return NOTEQ;
-"+"         return PLUS;
-"-"         return MINUS;
+"+"         return PLUS_OP;
+"-"         return MINUS_OP;
 "*"         return TIMES_OP;
-"/"         return DIV;
+"/"         return DIV_OP;
 ">"         return GR;
 "<"         return LE;
 ">="        return GREQ;
@@ -68,16 +69,21 @@
 
 .                                       return ERROR;
 
-<<EOF>>                                 return;
-
+<<EOF>>                                 return END_OF_FILE;
 
 
 %%
 
-/*
-int main() {
-    //printf("1 ");
-    //"\n"                                    printf("\n%i ", ++line);
-    yylex();
+int main(void) {
+    yyparse();
+    return 0;
 }
-*/
+
+int yywrap(void) {
+    return 0;
+}
+
+int yyerror(char* error) {
+    printf("%s\n", error);
+    exit(1);
+}

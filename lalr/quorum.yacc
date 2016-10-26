@@ -1,4 +1,5 @@
 %{
+#include <stdio.h>
 %}
 
 %token INTEGER_TYPE
@@ -25,6 +26,7 @@
 %token FALSE
 %token TRUE
 %token NUMBER
+%token TEXT
 %token INTEGER
 %token DOT
 %token ACTION
@@ -44,7 +46,16 @@
 %token DETECT
 %token ALWAYS
 %token TIMES
-%token TEXT
+%token BAD_COMMENT
+%token ERROR
+%token END_OF_FILE
+
+%left OR
+%left AND
+%left EQ NOTEQ
+%left GR LE GREQ LEEQ
+%left PLUS_OP MINUS_OP
+%left TIMES_OP DIV_OP
 
 %%
 
@@ -73,33 +84,47 @@ type        :  INTEGER_TYPE
 cast_expr   :  CAST LPAREN type COMMA ID RPAREN
             ;
 
-expr        :  expr PLUS_OP expr
-            |  expr MINUS_OP expr
-            |  expr TIMES_OP expr
-            |  expr DIV_OP expr
-            |  MINUS_OP expr
-            |  LPAREN expr RPAREN
+expr        :  expr PLUS_OP expr    {$$ = $1 + $3;}
+            |  expr MINUS_OP expr   {$$ = $1 - $3;}
+            |  expr TIMES_OP expr   {$$ = $1 * $3;}
+            |  expr DIV_OP expr     {$$ = $1 / $3;}
+            |  expr OR expr         {$$ = $1 || $3;}
+            |  expr AND expr        {$$ = $1 && $3;}
+            |  expr EQ expr         {$$ = $1 == $3;}
+            |  expr NOTEQ expr      {$$ = $1 != $3;}
+            |  expr GR expr         {$$ = $1 > $3;}
+            |  expr LE expr         {$$ = $1 < $3;}
+            |  expr GREQ expr       {$$ = $1 >= $3;}
+            |  expr LEEQ expr       {$$ = $1 <= $3;}
+            |  cast_expr
+            |  FALSE
+            |  TRUE
+            |  NUMBER
+            |  INTEGER
+            |  TEXT
+            |  MINUS_OP expr        {$$ = - $2;}
+            |  LPAREN expr RPAREN   {$$ = $2;}
             ;
 
-lib         :  ID lib'
+lib         :  ID libp
             ;
 
-lib'        :  DOT ID lib'
+libp        :  DOT ID libp
             |
             ;
 
-args        :  ID args'
+args        :  ID argsp
             |
             ;
 
-args'       :  COMMA ID args'
+argsp       :  COMMA ID argsp
             |
             ;
 
-args_def    :  type ID args_def'
+args_def    :  type ID args_defp
             ;
 
-args_def'   :  COMMA type ID args_def'
+args_defp   :  COMMA type ID args_defp
             |
             ;
 
@@ -121,7 +146,7 @@ instance    :  COLON ID instance
             |
             ;
 
-action_call |  LPAREN args RPAREN
+action_call :  LPAREN args RPAREN
             ;
 
 class_decl  :  CLASS ID inheritance declaration action_decl END
@@ -134,18 +159,19 @@ inheritance :  IS args
 assign      :  EQ expr
             ;
 
-id_stmt     :  ID id_stmt'
+id_stmt     :  ID id_stmtp
             ;
 
-id_stmt'    :  instance action_call
+id_stmtp    :  instance action_call
             |  assign
             ;
 
-repeat_stmt :  REPEAT repeat_stmt' stmts END
+repeat_stmt :  REPEAT repeat_stmtp stmts END
             ;
 
-repeat_stmt':  WHILE expr
+repeat_stmtp:  WHILE expr
             |  UNTIL expr
+            |  INTEGER TIMES
             ;
 
 if_stmt     :  IF expr stmts elseif_stmt
@@ -170,3 +196,5 @@ detect_stmt :  DETECT ID IS ID stmts END
 
 always_stmt :  ALWAYS stmts END
             ;
+
+%%
