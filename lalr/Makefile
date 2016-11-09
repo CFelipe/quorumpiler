@@ -2,7 +2,7 @@ lalr: yacc
 	gcc -ll lex.yy.c y.tab.c -o lalr
  
 yacc: lex
-	yacc -dv quorum.yacc
+	yacc -dvt quorum.y
 
 lex: quorum.lex
 	lex quorum.lex

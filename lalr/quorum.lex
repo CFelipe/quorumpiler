@@ -47,6 +47,7 @@
 "if"        return IF;
 "class"     return CLASS;
 "else"      return ELSE;
+"elseif"    return ELSEIF;
 "action"    return ACTION;
 "returns"   return RETURNS;
 "use"       return USE;
@@ -58,6 +59,8 @@
 "true"      return TRUE;
 "false"     return FALSE;
 "is"        return IS;
+"output"    return OUTPUT;
+"return"    return RETURN;
 
 [0-9]+"."[0-9]*                         return NUMBER;
 [0-9]+                                  return INTEGER;
@@ -69,21 +72,5 @@
 
 .                                       return ERROR;
 
-<<EOF>>                                 return END_OF_FILE;
-
 
 %%
-
-int main(void) {
-    yyparse();
-    return 0;
-}
-
-int yywrap(void) {
-    return 0;
-}
-
-int yyerror(char* error) {
-    printf("%s\n", error);
-    exit(1);
-}

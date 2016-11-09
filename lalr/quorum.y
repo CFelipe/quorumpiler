@@ -1,6 +1,12 @@
 %{
 #include <stdio.h>
+
+int yylex();
+int yyerror(char *s);
+int yydebug = 1;
 %}
+
+%debug
 
 %token INTEGER_TYPE
 %token NUMBER_TYPE
@@ -46,16 +52,20 @@
 %token DETECT
 %token ALWAYS
 %token TIMES
+%token OUTPUT
+%token RETURN
 %token BAD_COMMENT
 %token ERROR
 %token END_OF_FILE
 
 %left OR
 %left AND
-%left EQ NOTEQ
-%left GR LE GREQ LEEQ
+%right EQ NOTEQ
+%nonassoc GR LE GREQ LEEQ
 %left PLUS_OP MINUS_OP
 %left TIMES_OP DIV_OP
+
+%start stmts
 
 %%
 
@@ -69,6 +79,8 @@ stmt        :  repeat_stmt
             |  declaration
             |  action_decl
             |  id_stmt
+            |  output_stmt
+            |  return_stmt
             ;
 
 stmts       :  stmt stmts
@@ -90,17 +102,19 @@ expr        :  expr PLUS_OP expr    {$$ = $1 + $3;}
             |  expr DIV_OP expr     {$$ = $1 / $3;}
             |  expr OR expr         {$$ = $1 || $3;}
             |  expr AND expr        {$$ = $1 && $3;}
-            |  expr EQ expr         {$$ = $1 == $3;}
+            |  expr EQ expr         {$$ = $1 = $3;}
             |  expr NOTEQ expr      {$$ = $1 != $3;}
             |  expr GR expr         {$$ = $1 > $3;}
             |  expr LE expr         {$$ = $1 < $3;}
             |  expr GREQ expr       {$$ = $1 >= $3;}
             |  expr LEEQ expr       {$$ = $1 <= $3;}
             |  cast_expr
+            |  ID action_call
             |  FALSE
             |  TRUE
-            |  NUMBER
-            |  INTEGER
+            |  NUMBER               {$$ = $1;}
+            |  INTEGER              {$$ = $1;}
+            |  ID                   {$$ = $1;}
             |  TEXT
             |  MINUS_OP expr        {$$ = - $2;}
             |  LPAREN expr RPAREN   {$$ = $2;}
@@ -113,11 +127,11 @@ libp        :  DOT ID libp
             |
             ;
 
-args        :  ID argsp
+args        :  expr argsp
             |
             ;
 
-argsp       :  COMMA ID argsp
+argsp       :  COMMA expr argsp
             |
             ;
 
@@ -149,7 +163,7 @@ instance    :  COLON ID instance
 action_call :  LPAREN args RPAREN
             ;
 
-class_decl  :  CLASS ID inheritance declaration action_decl END
+class_decl  :  CLASS ID inheritance action_decl END
             ;
 
 inheritance :  IS args
@@ -197,4 +211,20 @@ detect_stmt :  DETECT ID IS ID stmts END
 always_stmt :  ALWAYS stmts END
             ;
 
+output_stmt :  OUTPUT ID
+            |  OUTPUT TEXT
+            ;
+
+return_stmt :  RETURN expr
+            ;
+
 %%
+
+int yyerror(char *s) {
+    printf("%s\n",s);
+    return 1;
+}
+
+int main(void) {
+    return(yyparse());
+}

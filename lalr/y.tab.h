@@ -83,9 +83,11 @@
      DETECT = 299,
      ALWAYS = 300,
      TIMES = 301,
-     BAD_COMMENT = 302,
-     ERROR = 303,
-     END_OF_FILE = 304
+     OUTPUT = 302,
+     RETURN = 303,
+     BAD_COMMENT = 304,
+     ERROR = 305,
+     END_OF_FILE = 306
    };
 #endif
 /* Tokens.  */
@@ -133,9 +135,11 @@
 #define DETECT 299
 #define ALWAYS 300
 #define TIMES 301
-#define BAD_COMMENT 302
-#define ERROR 303
-#define END_OF_FILE 304
+#define OUTPUT 302
+#define RETURN 303
+#define BAD_COMMENT 304
+#define ERROR 305
+#define END_OF_FILE 306
 
 
 
